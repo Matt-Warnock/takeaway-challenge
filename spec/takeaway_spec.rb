@@ -97,9 +97,8 @@ RSpec.describe TakeAway do
     it 'returns confirmation text is send' do
       api_stub
 
-      confirmation = takeaway.send_message
-
-      expect(confirmation).to eq ('accepted')
+      expect(takeaway.send_message)
+      .to eq("accepted: #{described_class::TEXT_MESSAGE}18:52")
     end
   end
 

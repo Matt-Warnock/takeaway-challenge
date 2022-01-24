@@ -3,6 +3,9 @@
 require 'twilio_client'
 
 class TakeAway
+  TEXT_MESSAGE = 'Thank you! Your order was placed'\
+                 'and will be delivered before '.freeze
+
   attr_reader :basket
 
   def initialize(menu, text_client)
@@ -36,7 +39,7 @@ class TakeAway
   end
 
   def send_message
-    text_client.send_text('19:52')
+    text_client.send_text(TEXT_MESSAGE + '18:52')
   end
 
   private
