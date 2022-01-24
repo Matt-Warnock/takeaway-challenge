@@ -5,15 +5,14 @@ require 'twilio_client'
 class TakeAway
   attr_reader :basket
 
-  def initialize(output, menu, text_client)
+  def initialize(menu, text_client)
     @basket = []
-    @output = output
     @menu = menu
     @text_client = text_client
   end
 
   def read_menu
-    output.puts menu.map { |key, value| "#{key}: £#{value}" }
+    menu.map { |key, value| "#{key}: £#{value}" }
   end
 
   def add_dish(dish)
@@ -23,9 +22,17 @@ class TakeAway
     @basket << menu.select { |key| key == dish.downcase }
   end
 
-  def check_order
-    output.puts basket_items.join("\n")
-    output.puts total_price
+  def basket_items
+    basket.uniq.map do |dish|
+      amount = count_repeated_items(dish)
+      "#{amount} x #{dish.keys.first}: £#{total_dish_price(dish, amount)}"
+    end
+  end
+
+  def total_price
+    total = 0
+    basket.each { |item| total += item.values.first }
+    "Total: £#{total}"
   end
 
   def send_message
@@ -34,20 +41,7 @@ class TakeAway
 
   private
 
-  attr_reader :output, :menu, :text_client
-
-  def total_price
-    total = 0
-    basket.each { |item| total += item.values.first }
-    "Total: £#{total}"
-  end
-
-  def basket_items
-    basket.uniq.map do |dish|
-      amount = count_repeated_items(dish)
-      "#{amount} x #{dish.keys.first}: £#{total_dish_price(dish, amount)}"
-    end
-  end
+  attr_reader :menu, :text_client
 
   def total_dish_price(dish, amount)
     amount * dish.values.first

@@ -3,30 +3,15 @@
 require 'takeaway'
 
 RSpec.describe TakeAway do
-  let(:output) { StringIO.new }
   let(:text_client) { TwilioClient.new }
-  let(:takeaway) { described_class.new(output, menu, text_client) }
-  let(:menu) {
-    {
-      'spring roll' => 0.99,
-      'char sui bun' => 3.99,
-      'pork dumpling' => 2.99,
-      'peking duck' => 7.99,
-      'fu-king fried rice' => 5.99
-    }
-  }
+  let(:takeaway) { described_class.new(menu, text_client) }
 
   describe '#read_menu' do
     it { expect(takeaway).to respond_to(:read_menu) }
 
-    it 'prints dishes with prices' do
-      takeaway.read_menu
+    it 'returns dishes with prices' do
 
-      expect(output.string).to include("spring roll: £0.99
-char sui bun: £3.99
-pork dumpling: £2.99
-peking duck: £7.99
-fu-king fried rice: £5.99")
+      expect(takeaway.read_menu).to eq(dishes_with_price)
     end
   end
 
@@ -74,24 +59,29 @@ fu-king fried rice: £5.99")
     end
   end
 
-  describe '#check_order' do
-    it 'prints items in basket with total' do
+  describe '#basket_items' do
+    it 'returns array of items in basket' do
       order_meal
-      takeaway.check_order
 
-      expect(output.string).to include(basket_items_with_total)
+      expect(takeaway.basket_items).to eq(basket_items)
     end
 
     it 'repesents multiples of same item' do
       takeaway.add_dish('peking duck')
       takeaway.add_dish('spring roll')
       takeaway.add_dish('spring roll')
+      expected_array = ['1 x peking duck: £7.99', '2 x spring roll: £1.98']
 
-      takeaway.check_order
+      expect(takeaway.basket_items).to eq(expected_array)
+    end
+  end
 
-      expect(output.string).to include(
-"1 x peking duck: £7.99\n2 x spring roll: £1.98\nTotal: £9.97\n"
-)
+  describe '#total_price' do
+    it 'returns total price of basket items' do
+      order_meal
+      total_basket_value = 17.96
+
+      expect(takeaway.total_price).to eq("Total: £#{total_basket_value}")
     end
   end
 
@@ -123,6 +113,16 @@ fu-king fried rice: £5.99")
     }
   end
 
+  def dishes_with_price
+    [
+      'spring roll: £0.99',
+      'char sui bun: £3.99',
+      'pork dumpling: £2.99',
+      'peking duck: £7.99',
+      'fu-king fried rice: £5.99'
+    ]
+  end
+
   def order_meal
     takeaway.add_dish('peking duck')
     takeaway.add_dish('pork dumpling')
@@ -130,12 +130,13 @@ fu-king fried rice: £5.99")
     takeaway.add_dish('fu-king fried rice')
   end
 
-  def basket_items_with_total
-    "1 x peking duck: £7.99
-1 x pork dumpling: £2.99
-1 x spring roll: £0.99
-1 x fu-king fried rice: £5.99
-Total: £17.96"
+  def basket_items
+    [
+      '1 x peking duck: £7.99',
+      '1 x pork dumpling: £2.99',
+      '1 x spring roll: £0.99',
+      '1 x fu-king fried rice: £5.99'
+    ]
   end
 
   def api_stub
