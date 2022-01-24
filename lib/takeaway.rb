@@ -5,16 +5,10 @@ require 'twilio_client'
 class TakeAway
   attr_reader :basket
 
-  def initialize(output)
+  def initialize(output, menu)
     @basket = []
     @output = output
-    @menu = {
-      'spring roll' => 0.99,
-      'char sui bun' => 3.99,
-      'pork dumpling' => 2.99,
-      'peking duck' => 7.99,
-      'fu-king fried rice' => 5.99
-    }
+    @menu = menu
   end
 
   def read_menu
