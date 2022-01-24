@@ -39,12 +39,18 @@ class TakeAway
   end
 
   def send_message
-    text_client.send_text(TEXT_MESSAGE + '18:52')
+    text_client.send_text(TEXT_MESSAGE + one_hour_from_now)
   end
 
   private
 
   attr_reader :menu, :text_client
+
+  def one_hour_from_now
+    seconds_in_hour = 3600
+
+    (Time.now + seconds_in_hour).strftime('%R')
+  end
 
   def total_dish_price(dish, amount)
     amount * dish.values.first

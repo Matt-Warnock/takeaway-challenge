@@ -86,17 +86,20 @@ RSpec.describe TakeAway do
   end
 
   describe '#send_message' do
-    it 'calls the client' do
-      api_stub
+    before(:each) do
+      time_now = Time.utc(2022, 'jan', 1, 17, 52)
+      allow(Time).to receive(:now).and_return(time_now)
 
+      api_stub
+    end
+
+    it 'calls the client' do
       takeaway.send_message
 
       expect(api_stub).to have_been_requested
     end
 
     it 'returns confirmation text is send' do
-      api_stub
-
       expect(takeaway.send_message)
       .to eq("accepted: #{described_class::TEXT_MESSAGE}18:52")
     end
