@@ -12,19 +12,19 @@ class TakeAway
   end
 
   def read_menu
-    menu.each { |key, value| output.puts "#{key}: £#{value}" }
+    output.puts menu.map { |key, value| "#{key}: £#{value}" }
   end
 
   def add_dish(dish)
     check_for_string(dish)
-    return print_error_message unless menu.keys.any?(dish.downcase)
+    check_for_dish(dish)
 
     @basket << menu.select { |key| key == dish.downcase }
   end
 
   def check_order
-    print_basket_items
-    print_total
+    output.puts basket_items.join("\n")
+    output.puts total_price
   end
 
   def send_message
@@ -35,25 +35,29 @@ class TakeAway
 
   attr_reader :output, :menu
 
-  def print_total
+  def total_price
     total = 0
     basket.each { |item| total += item.values.first }
-    output.puts "Total: £#{total}"
+    "Total: £#{total}"
   end
 
-  def print_basket_items
-    basket.uniq.each do |dish|
+  def basket_items
+    basket.uniq.map do |dish|
       amount = count_repeated_items(dish)
-      output.puts "#{amount} x #{dish.keys.first}: £#{amount * dish.values.first}"
+      "#{amount} x #{dish.keys.first}: £#{total_dish_price(dish, amount)}"
     end
+  end
+
+  def total_dish_price(dish, amount)
+    amount * dish.values.first
   end
 
   def count_repeated_items(dish)
     basket.count { |item| item == dish }
   end
 
-  def print_error_message
-    output.puts 'item not on menu'
+  def check_for_dish(dish)
+    raise 'item not on menu' unless menu.keys.any?(dish.downcase)
   end
 
   def check_for_string(dish)

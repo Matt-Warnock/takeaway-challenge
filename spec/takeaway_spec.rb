@@ -61,15 +61,14 @@ fu-king fried rice: £5.99")
 
     context 'when not on menu' do
       it 'does not add to basket' do
-        takeaway.add_dish('not on menu')
-
-        expect(takeaway.basket).to be_empty
+        expect { takeaway.add_dish('not on menu') rescue nil }
+        .to_not change { takeaway.basket }
       end
 
-      it 'prints message that item is not on menu' do
-        takeaway.add_dish('not on menu')
+      it 'raises error that item is not on menu' do
+        message = 'item not on menu'
 
-        expect(output.string).to include('item not on menu')
+        expect { takeaway.add_dish('not on menu') }.to raise_error message
       end
     end
   end
