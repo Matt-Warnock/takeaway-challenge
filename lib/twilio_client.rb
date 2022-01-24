@@ -3,17 +3,20 @@
 require 'twilio-ruby'
 
 class TwilioClient
-  def send_text(message)
-    account_sid = ENV['ACCOUNT_SID']
-    auth_token = ENV['AUTH_TOKEN']
+  def initialize
+    @client = Twilio::REST::Client.new(ENV['ACCOUNT_SID'], ENV['AUTH_TOKEN'])
+  end
 
-    @client = Twilio::REST::Client.new(account_sid, auth_token)
-
-    response = @client.messages.create(
+  def send_text(message, number = ENV['RECEIVER_NUMBER'])
+    response = client.messages.create(
       body: message,
       messaging_service_sid: ENV['MESSAGING_SERVICE_SID'],
-      to: ENV['RECEIVER_NUMBER']
+      to: number
     )
     "#{response.status}: #{message}"
   end
+
+  private
+
+  attr_reader :client
 end
