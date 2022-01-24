@@ -4,6 +4,8 @@ require 'takeaway'
 
 RSpec.describe TakeAway do
   let(:output) { StringIO.new }
+  let(:text_client) { TwilioClient.new }
+  let(:takeaway) { described_class.new(output, menu, text_client) }
   let(:menu) {
     {
       'spring roll' => 0.99,
@@ -13,7 +15,6 @@ RSpec.describe TakeAway do
       'fu-king fried rice' => 5.99
     }
   }
-  let(:takeaway) { described_class.new(output, menu) }
 
   describe '#read_menu' do
     it { expect(takeaway).to respond_to(:read_menu) }

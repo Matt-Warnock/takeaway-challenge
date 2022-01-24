@@ -5,10 +5,11 @@ require 'twilio_client'
 class TakeAway
   attr_reader :basket
 
-  def initialize(output, menu)
+  def initialize(output, menu, text_client)
     @basket = []
     @output = output
     @menu = menu
+    @text_client = text_client
   end
 
   def read_menu
@@ -28,12 +29,12 @@ class TakeAway
   end
 
   def send_message
-    (TwilioClient.new).send_text('19:52')
+    text_client.send_text('19:52')
   end
 
   private
 
-  attr_reader :output, :menu
+  attr_reader :output, :menu, :text_client
 
   def total_price
     total = 0
