@@ -13,10 +13,14 @@ class TwilioClient
       messaging_service_sid: ENV['MESSAGING_SERVICE_SID'],
       to: number
     )
-    "#{response.status}: #{message}"
+    confirmation(response, message)
   end
 
   private
 
   attr_reader :client
+
+  def confirmation(response, message)
+    "#{response.status}: #{message}"
+  end
 end
