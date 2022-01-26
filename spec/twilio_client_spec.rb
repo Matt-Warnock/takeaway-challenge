@@ -5,21 +5,22 @@ require 'twilio_client'
 RSpec.describe TwilioClient do
   let(:client) { described_class.new }
   let(:message_info) { File.open('fixtures/twilio_response.json').read }
+  let(:message) { 'Thank you! Your order was placed and will be delivered before 18:52' }
 
   describe '#send_text' do
     it 'sends a post request with message and number to twilio api' do
       stub = api_stub
-      client.send_text('18:52')
+      client.send_text(message)
 
       expect(stub).to have_been_requested
     end
 
-    it 'returns status' do
+    it 'returns status with message' do
       api_stub
 
-      status = client.send_text('18:52')
+      status = client.send_text(message)
 
-      expect(status).to eq 'accepted'
+      expect(status).to eq "accepted: #{message}"
     end
   end
 
@@ -33,7 +34,7 @@ RSpec.describe TwilioClient do
 
   def send_request
     {
-      "Body" => "Thank you! Your order was placed and will be delivered before 18:52",
+      "Body" => message,
       "MessagingServiceSid" => "messaging_service_sid",
       "To" => "receiver_number"
     }

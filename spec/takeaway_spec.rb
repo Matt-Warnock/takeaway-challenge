@@ -3,26 +3,15 @@
 require 'takeaway'
 
 RSpec.describe TakeAway do
-  let(:output) { StringIO.new }
-  let(:takeaway) { described_class.new(output) }
-
-  it 'has a menu' do
-    result = takeaway.instance_variable_get(:@menu)
-
-    expect(result).to eq(menu)
-  end
+  let(:text_client) { TwilioClient.new }
+  let(:takeaway) { described_class.new(menu, text_client) }
 
   describe '#read_menu' do
     it { expect(takeaway).to respond_to(:read_menu) }
 
-    it 'prints dishes with prices' do
-      takeaway.read_menu
+    it 'returns dishes with prices' do
 
-      expect(output.string).to include("spring roll: £0.99
-char sui bun: £3.99
-pork dumpling: £2.99
-peking duck: £7.99
-fu-king fried rice: £5.99")
+      expect(takeaway.read_menu).to eq(dishes_with_price)
     end
   end
 
@@ -58,55 +47,61 @@ fu-king fried rice: £5.99")
 
     context 'when not on menu' do
       it 'does not add to basket' do
-        takeaway.add_dish('not on menu')
-
-        expect(takeaway.basket).to be_empty
+        expect { takeaway.add_dish('not on menu') rescue nil }
+        .to_not change { takeaway.basket }
       end
 
-      it 'prints message that item is not on menu' do
-        takeaway.add_dish('not on menu')
+      it 'raises error that item is not on menu' do
+        message = 'item not on menu'
 
-        expect(output.string).to include('item not on menu')
+        expect { takeaway.add_dish('not on menu') }.to raise_error message
       end
     end
   end
 
-  describe '#check_order' do
-    it 'prints items in basket with total' do
+  describe '#basket_items' do
+    it 'returns array of items in basket' do
       order_meal
-      takeaway.check_order
 
-      expect(output.string).to include(basket_items_with_total)
+      expect(takeaway.basket_items).to eq(basket_items)
     end
 
     it 'repesents multiples of same item' do
       takeaway.add_dish('peking duck')
       takeaway.add_dish('spring roll')
       takeaway.add_dish('spring roll')
+      expected_array = ['1 x peking duck: £7.99', '2 x spring roll: £1.98']
 
-      takeaway.check_order
+      expect(takeaway.basket_items).to eq(expected_array)
+    end
+  end
 
-      expect(output.string).to include(
-"1 x peking duck: £7.99\n2 x spring roll: £1.98\nTotal: £9.97\n"
-)
+  describe '#total_price' do
+    it 'returns total price of basket items' do
+      order_meal
+      total_basket_value = 17.96
+
+      expect(takeaway.total_price).to eq("Total: £#{total_basket_value}")
     end
   end
 
   describe '#send_message' do
-    it 'calls the client' do
-      api_stub
+    before(:each) do
+      time_now = Time.utc(2022, 'jan', 1, 17, 52)
+      allow(Time).to receive(:now).and_return(time_now)
 
+      api_stub
+    end
+
+    it 'calls the client' do
       takeaway.send_message
 
       expect(api_stub).to have_been_requested
     end
 
     it 'returns confirmation text is send' do
-      api_stub
-
-      confirmation = takeaway.send_message
-
-      expect(confirmation).to eq ('accepted')
+      expect(takeaway.send_message)
+      .to eq("accepted: #{described_class::TEXT_MESSAGE}18:52")
     end
   end
 
@@ -120,6 +115,16 @@ fu-king fried rice: £5.99")
     }
   end
 
+  def dishes_with_price
+    [
+      'spring roll: £0.99',
+      'char sui bun: £3.99',
+      'pork dumpling: £2.99',
+      'peking duck: £7.99',
+      'fu-king fried rice: £5.99'
+    ]
+  end
+
   def order_meal
     takeaway.add_dish('peking duck')
     takeaway.add_dish('pork dumpling')
@@ -127,12 +132,13 @@ fu-king fried rice: £5.99")
     takeaway.add_dish('fu-king fried rice')
   end
 
-  def basket_items_with_total
-    "1 x peking duck: £7.99
-1 x pork dumpling: £2.99
-1 x spring roll: £0.99
-1 x fu-king fried rice: £5.99
-Total: £17.96"
+  def basket_items
+    [
+      '1 x peking duck: £7.99',
+      '1 x pork dumpling: £2.99',
+      '1 x spring roll: £0.99',
+      '1 x fu-king fried rice: £5.99'
+    ]
   end
 
   def api_stub
