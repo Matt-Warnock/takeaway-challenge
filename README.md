@@ -1,5 +1,7 @@
 Takeaway Challenge
 ==================
+
+This challenge is one of the weekend challenges set by Makers Academy, forked from [this](https://github.com/makersacademy/takeaway-challenge) repository.
 ```
                             _________
               r==           |       |
@@ -14,20 +16,71 @@ Takeaway Challenge
 
  ```
 
-Instructions
--------
+## Installation
+ Make sure you have ruby 3.0.2 and bundler (2.2.26 is the version I used) installed on your system.
 
-* Feel free to use google, your notes, books, etc. but work on your own
-* If you refer to the solution of another coach or student, please put a link to that in your README
-* If you have a partial solution, **still check in a partial solution**
-* You must submit a pull request to this repo with your code by 9am Monday morning
+ Install gems:
+ ```bash
+ bundle install
+ ```
 
-Task
------
+## Text sender setup
 
-* Fork this repo
-* Run the command 'bundle' in the project directory to ensure you have all the gems
-* Write a Takeaway program with the following user stories:
+To run this app you will first need to setup an account with [Twillio](www.twilio.com). After you have setup a number to text to and from you will need to put the following information into a `.env` file in the route of this project:
+
+```
+ACCOUNT_SID=account_sid
+AUTH_TOKEN=auth_token
+MESSAGING_SERVICE_SID=messaging_service_sid
+RECEIVER_NUMBER=receiver_number
+```
+
+## Running app
+
+### Building menu
+
+The Takeaway class can take any hash menu you like in its first argument, as long as it follows the following format:
+
+```ruby
+{
+  <description_string>: <price_float>
+}
+```
+
+Here is a menu example:
+```ruby
+{
+  'spring roll' => 0.99, 'char sui bun' => 3.99, 'pork dumpling' => 2.99, 'peking duck' => 7.99, 'fu-king fried rice' => 5.99
+}
+```
+
+### Setting up app in irb
+
+start irb with class files:
+```bash
+irb -r ./lib/takeaway -r ./lib/twilio_client
+```
+
+Load environment variables in irb:
+```ruby
+require 'dotenv'
+Dotenv.load('.env')
+```
+
+### Using app
+
+![app use example](irb_example.png)
+
+## My approach
+
+### Binded formatting concerns with logic
+
+The [review docs](docs/review.md) it suggests in the irb example for the main class (also dealing with the logic) return readable strings.
+I originally confused this and the user stories to be informing me to print the strings to an output stream. I decided to unbind the output stream but still return readable strings as the formatting can be easily removed.
+
+### User storys
+
+I interpreted the user stories as the user being a user interface (or other interface) as part of a wider system.
 
 ```
 As a customer
@@ -46,38 +99,3 @@ As a customer
 So that I am reassured that my order will be delivered on time
 I would like to receive a text such as "Thank you! Your order was placed and will be delivered before 18:52" after I have ordered
 ```
-
-* Hints on functionality to implement:
-  * Ensure you have a list of dishes with prices
-  * The text should state that the order was placed successfully and that it will be delivered 1 hour from now, e.g. "Thank you! Your order was placed and will be delivered before 18:52".
-  * The text sending functionality should be implemented using Twilio API. You'll need to register for it. It’s free.
-  * Use the twilio-ruby gem to access the API
-  * Use the Gemfile to manage your gems
-  * Make sure that your Takeaway is thoroughly tested and that you use mocks and/or stubs, as necessary to not to send texts when your tests are run
-  * However, if your Takeaway is loaded into IRB and the order is placed, the text should actually be sent
-  * Note that you can only send texts in the same country as you have your account. I.e. if you have a UK account you can only send to UK numbers.
-
-* Advanced! (have a go if you're feeling adventurous):
-  * Implement the ability to place orders via text message.
-
-* A free account on Twilio will only allow you to send texts to "verified" numbers. Use your mobile phone number, don't worry about the customer's mobile phone.
-
-> :warning: **WARNING:** think twice before you push your **mobile number** or **Twilio API Key** to a public space like GitHub :eyes:
->
-> :key: Now is a great time to think about security and how you can keep your private information secret. You might want to explore environment variables.
-
-* Finally submit a pull request before Monday at 9am with your solution or partial solution.  However much or little amount of code you wrote please please please submit a pull request before Monday at 9am
-
-
-In code review we'll be hoping to see:
-
-* All tests passing
-* High [Test coverage](https://github.com/makersacademy/course/blob/main/pills/test_coverage.md) (>95% is good)
-* The code is elegant: every class has a clear responsibility, methods are short etc.
-
-Reviewers will potentially be using this [code review rubric](docs/review.md).  Referring to this rubric in advance will make the challenge somewhat easier.  You should be the judge of how much challenge you want this at this moment.
-
-Notes on Test Coverage
-------------------
-
-You can see your [test coverage](https://github.com/makersacademy/course/blob/main/pills/test_coverage.md) when you run your tests.
