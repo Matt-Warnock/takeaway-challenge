@@ -1,9 +1,7 @@
 # frozen_literial_string: true
 
-require 'twilio_client'
-
 class TakeAway
-  TEXT_MESSAGE = 'Thank you! Your order was placed'\
+  TEXT_MESSAGE = 'Thank you! Your order was placed '\
                  'and will be delivered before '.freeze
 
   attr_reader :basket
